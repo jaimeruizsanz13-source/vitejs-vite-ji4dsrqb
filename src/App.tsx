@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getMatchesHoy, getMatchesProximos } from "./api";
-import { analizarPartido } from "./ai.ts";
+import { analizarPartido } from "./ai";
 import type { Match } from "./api";
 
 type Tab = "inicio" | "picks" | "partidos" | "stats" | "perfil";
@@ -28,9 +28,6 @@ export default function App() {
   const [selected, setSelected] = useState<Match | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loadingAI, setLoadingAI] = useState<string | null>(null);
-  useEffect(() => {
-  console.log("API KEY:", import.meta.env.VITE_ANTHROPIC_KEY ? "EXISTE" : "VACÍA");
-}, []);
 
   useEffect(() => {
     const s = localStorage.getItem("bm_saved");
@@ -53,13 +50,19 @@ export default function App() {
     try {
       const result = await analizarPartido(m.home, m.away, m.league, m.sport);
       const parsed = JSON.parse(result);
-      setSelected(prev => prev ? {
-        ...prev,
-        analysis: parsed.analysis,
-        pick: parsed.pick,
-        confidence: parsed.confidence
-      } : null);
-    } catch {
+      setSelected({
+        ...m,
+        analysis: parsed.analysis || m.analysis,
+        pick: parsed.pick || m.pick,
+        confidence: parsed.confidence || m.confidence
+      });
+    } catch (err) {
+      setSelected({
+        ...m,
+        analysis: "Error: " + String(err),
+        pick: m.pick,
+        confidence: m.confidence
+      });
     } finally {
       setLoadingAI(null);
     }
@@ -71,7 +74,6 @@ export default function App() {
 
   const styles = {
     app: { maxWidth: 430, margin: "0 auto", minHeight: "100vh", background: "#F0F4FF", display: "flex" as const, flexDirection: "column" as const, fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" },
-    header: { background: "linear-gradient(135deg,#7C3AED,#3B82F6)", padding: "24px 16px 16px", color: "#fff" },
     sectionTitle: { fontSize: 14, fontWeight: 800, color: "#3B1F6E", marginBottom: 12, display: "flex" as const, alignItems: "center" as const, gap: 6 },
     nav: { position: "fixed" as const, bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: "#fff", borderTop: "1px solid #DDD6FE", display: "flex" as const, paddingBottom: "env(safe-area-inset-bottom)" },
   };
@@ -188,7 +190,7 @@ export default function App() {
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: "#1e1b4b", marginBottom: 6 }}>{m.home} vs {m.away}</div>
                 <div style={{ fontSize: 13, color: "#4B5563", lineHeight: 1.5, marginBottom: 10 }}>{m.analysis}</div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const }}>
                   <span style={{ background: "#D1FAE5", color: "#065F46", fontSize: 12, padding: "4px 12px", borderRadius: 20, fontWeight: 800 }}>Pick: {m.pick}</span>
                   <span style={{ background: "#EDE9FE", color: "#5B21B6", fontSize: 12, padding: "4px 12px", borderRadius: 20, fontWeight: 700 }}>{m.confidence}% confianza</span>
                 </div>
@@ -224,7 +226,7 @@ export default function App() {
                   border: `1px solid ${sport === s ? "#7C3AED" : "#DDD6FE"}`,
                   color: sport === s ? "#fff" : "#6B7280",
                   borderRadius: 20, padding: "6px 14px", fontSize: 12, cursor: "pointer",
-                  whiteSpace: "nowrap", fontWeight: 700
+                  whiteSpace: "nowrap" as const, fontWeight: 700
                 }}>
                   {s === "all" ? "Todos" : s === "football" ? "⚽ Fútbol" : s === "basketball" ? "🏀 Basket" : "🎾 Tenis"}
                 </button>
@@ -324,7 +326,7 @@ export default function App() {
               <span style={{ flex: 1, textAlign: "center" }}>{selected.away}</span>
             </div>
             <div style={{ background: "linear-gradient(135deg,#EDE9FE,#DBEAFE)", borderRadius: 14, padding: 14, marginBottom: 16, border: "1px solid #C4B5FD" }}>
-              <div style={{ fontSize: 10, color: "#6D28D9", fontWeight: 800, marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 }}>🤖 Análisis IA</div>
+              <div style={{ fontSize: 10, color: "#6D28D9", fontWeight: 800, marginBottom: 6, textTransform: "uppercase" as const, letterSpacing: 1 }}>🤖 Análisis IA</div>
               {loadingAI === selected.id ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", color: "#7C3AED", fontWeight: 700, fontSize: 14 }}>
                   <div style={{ width: 18, height: 18, borderRadius: "50%", border: "2px solid #DDD6FE", borderTopColor: "#7C3AED", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
@@ -333,7 +335,7 @@ export default function App() {
               ) : (
                 <>
                   <div style={{ fontSize: 14, color: "#374151", lineHeight: 1.6 }}>{selected.analysis}</div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" as const }}>
                     <span style={{ background: "#D1FAE5", color: "#065F46", fontSize: 13, padding: "5px 14px", borderRadius: 20, fontWeight: 800 }}>Pick: {selected.pick}</span>
                     <span style={{ background: "#EDE9FE", color: "#5B21B6", fontSize: 13, padding: "5px 14px", borderRadius: 20 }}>{selected.confidence}% confianza</span>
                   </div>
