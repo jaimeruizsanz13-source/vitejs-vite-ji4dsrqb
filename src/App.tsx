@@ -28,6 +28,9 @@ export default function App() {
   const [selected, setSelected] = useState<Match | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loadingAI, setLoadingAI] = useState<string | null>(null);
+  useEffect(() => {
+  console.log("API KEY:", import.meta.env.VITE_ANTHROPIC_KEY ? "EXISTE" : "VACÍA");
+}, []);
 
   useEffect(() => {
     const s = localStorage.getItem("bm_saved");
