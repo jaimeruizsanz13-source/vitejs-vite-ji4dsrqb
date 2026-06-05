@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getMatchesHoy, getMatchesProximos } from "./api";
-import { analizarPartido } from "./ai";
+import { analizarPartido } from "./ai.ts";
 import type { Match } from "./api";
 
 type Tab = "inicio" | "picks" | "partidos" | "stats" | "perfil";
