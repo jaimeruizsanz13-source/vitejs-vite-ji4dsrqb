@@ -8,7 +8,7 @@ export async function analizarPartido(
     const response = await fetch("https://betmind-server-production.up.railway.app/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ home, away, league, sport })
+      body: JSON.stringify({ home, away, league, sport, v: 2 })
     });
     const data = await response.json();
     return JSON.stringify(data);
