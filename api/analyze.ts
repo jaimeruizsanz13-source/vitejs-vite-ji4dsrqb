@@ -20,29 +20,28 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 200,
-        messages: [
-          {
-            role: "user",
-            content: `Eres un analista deportivo experto. Analiza este partido en 2-3 frases cortas en español. Da un pick (1, X, 2, 1X o X2) y confianza del 50-95%.
+        messages: [{
+          role: "user",
+          content: `Eres un analista deportivo experto. Analiza este partido en 2-3 frases cortas en español. Da un pick (1, X, 2, 1X o X2) y confianza del 50-95%.
 
 Partido: ${home} vs ${away}
 Competición: ${league}
 Deporte: ${sport}
 
 Responde SOLO en este formato JSON sin nada más:
-{"analysis": "texto", "pick": "1", "confidence": 75}`
-          }
-        ]
+{"analysis": "texto del análisis aquí", "pick": "1", "confidence": 75}`
+        }]
       })
     });
 
     const data = await response.json();
     const text = data.content?.[0]?.text || "";
-    const parsed = JSON.parse(text);
+    const clean = text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(clean);
     res.status(200).json(parsed);
-  } catch {
+  } catch (err) {
     res.status(200).json({
-      analysis: `${home} se enfrenta a ${away} en ${league}. Partido con opciones para ambos equipos.`,
+      analysis: `${home} se enfrenta a ${away} en ${league}. Partido interesante con opciones para ambos equipos.`,
       pick: "1",
       confidence: 65
     });
