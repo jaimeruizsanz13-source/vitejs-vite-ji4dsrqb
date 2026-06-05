@@ -255,7 +255,8 @@ export function getMatchesHoy(): Match[] {
   return ALL_MATCHES.filter((m) => m.date === hoy);
 }
 
-export function getMatchesProximos(): Match[] {
+export function getMatchesHoy(): Match[] {
   const hoy = new Date().toISOString().split('T')[0];
   return ALL_MATCHES.filter((m) => m.date >= hoy);
+}
 }
