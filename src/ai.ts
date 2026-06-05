@@ -14,7 +14,7 @@ export async function analizarPartido(
     return JSON.stringify(data);
   } catch {
     return JSON.stringify({
-      analysis: `${home} se enfrenta a ${away} en ${league}. Partido con opciones para ambos equipos.`,
+      analysis: `${home} se enfrenta a ${away} en ${league}. Partido interesante con opciones para ambos equipos.`,
       pick: "1",
       confidence: 65
     });
