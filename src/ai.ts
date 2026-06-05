@@ -4,8 +4,17 @@ export async function analizarPartido(
   league: string,
   sport: string
 ): Promise<string> {
+  const key = import.meta.env.VITE_ANTHROPIC_KEY ?? "";
+  
+  if (!key) {
+    return JSON.stringify({
+      analysis: `Sin clave API configurada.`,
+      pick: "1",
+      confidence: 65
+    });
+  }
+
   try {
-    const key = import.meta.env.VITE_ANTHROPIC_KEY;
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -19,25 +28,30 @@ export async function analizarPartido(
         max_tokens: 250,
         messages: [{
           role: "user",
-          content: `Eres un analista deportivo experto. Analiza este partido en 2-3 frases en español considerando estadísticas recientes, forma del equipo y contexto de la competición. Sé específico y útil.
+          content: `Eres un analista deportivo experto. Analiza este partido en 2-3 frases en español considerando estadísticas recientes y forma del equipo.
 
 Partido: ${home} vs ${away}
 Competición: ${league}
 Deporte: ${sport}
 
-Responde SOLO con este JSON sin texto extra:
-{"analysis": "tu análisis aquí", "pick": "1", "confidence": 75}`
+Responde SOLO con este JSON:
+{"analysis": "análisis aquí", "pick": "1", "confidence": 75}`
         }]
       })
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
     const data = await response.json();
-    const text = data.content?.[0]?.text || "";
+    const text = data.content?.[0]?.text ?? "";
     const clean = text.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(clean);
     return JSON.stringify(parsed);
-  } catch {
+  } catch (err) {
     return JSON.stringify({
-      analysis: `${home} se enfrenta a ${away} en ${league}. Partido interesante con opciones para ambos equipos.`,
+      analysis: `Error: ${err}. ${home} vs ${away} en ${league}.`,
       pick: "1",
       confidence: 65
     });
