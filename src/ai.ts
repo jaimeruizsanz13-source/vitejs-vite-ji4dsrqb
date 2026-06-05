@@ -4,17 +4,18 @@ export async function analizarPartido(
   league: string,
   sport: string
 ): Promise<string> {
+  const url = "https://betmind-server-production.up.railway.app/analyze";
   try {
-    const response = await fetch("https://betmind-server-production.up.railway.app/analyze", {
+    const r = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ home, away, league, sport, v: 2 })
+      body: JSON.stringify({ home, away, league, sport })
     });
-    const data = await response.json();
-    return JSON.stringify(data);
-  } catch (err) {
+    const d = await r.json();
+    return JSON.stringify(d);
+  } catch {
     return JSON.stringify({
-      analysis: `${home} se enfrenta a ${away} en ${league}. Partido interesante con opciones para ambos equipos.`,
+      analysis: `Error conectando al servidor. ${home} vs ${away}.`,
       pick: "1",
       confidence: 65
     });
